@@ -6,8 +6,8 @@ import {
   ClipboardDocumentListIcon,
   PillIcon,
   PlusIcon
-} from '@/components/Icons';
-import { Colors } from '@/constants/theme';
+} from '@/src/modules/doctor/components/Icons';
+import { Colors } from '@/src/modules/doctor/constants/theme';
 import { useRouter } from "expo-router";
 import React, { useState } from 'react';
 import { Alert, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
