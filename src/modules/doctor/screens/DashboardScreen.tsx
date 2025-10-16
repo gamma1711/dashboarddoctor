@@ -11,8 +11,8 @@ import { Colors } from '@/src/modules/doctor/constants/theme';
 import { useRouter } from "expo-router";
 import React, { useState } from 'react';
 import { Alert, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Calendar from '../components/Calendar';
 import DashboardSection from '../components/DashboardSection';
+import Calendar from './CalendarScreen';
 
 // MOCK DATA para citas por día
 const citasPorDia: Record<string, Array<{ id: string; paciente: string; hora: string; estatus: string }>> = {
@@ -144,7 +144,7 @@ const Dashboard = () => {
           <View style={styles.toolsContainer}>
             <TouchableOpacity 
               style={styles.toolRow}
-              onPress={() => setCalendarModalOpen(true)}
+              onPress={() => router.push("/doctor/dashboard/calendar")}
             >
               <View style={styles.calendarIconContainer}>
                 <CalendarIcon width={24} height={24} color={Colors.light.primary} />
@@ -217,8 +217,8 @@ const Dashboard = () => {
             style={styles.fabMenuItem}
             onPress={() => {
               setFabMenuOpen(false);
-              Alert.alert('Agendar Nueva Cita');
-            }}
+              router.push("/doctor/dashboard/newAppointment");
+}}
           >
             <Text style={styles.fabMenuText}>Agendar Nueva Cita</Text>
             <View style={styles.fabMenuIcon}>

@@ -1,10 +1,13 @@
 import {
-    ChevronLeftIcon,
-    ChevronRightIcon
+  BellIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PlusIcon
 } from '@/src/modules/doctor/components/Icons';
 import { Colors } from '@/src/modules/doctor/constants/theme';
+import { useRouter } from "expo-router";
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const citasPorDia: Record<string, Array<{ id: string; paciente: string; hora: string; estatus: string }>> = {
   '2025-10-01': [
@@ -21,13 +24,13 @@ const citasPorDia: Record<string, Array<{ id: string; paciente: string; hora: st
   ],
 };
 
-const Calendar: React.FC = () => {
+const Calendar: React.FC = ({ navigation }: any) => {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 9, 1)); // Octubre 2025
   const [selectedDate, setSelectedDate] = useState(new Date(2025, 9, 13));
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
 
-  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const dayNames = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
   const dayNamesFull = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
 
@@ -38,7 +41,7 @@ const Calendar: React.FC = () => {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     const days: (Date | null)[] = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
@@ -52,7 +55,7 @@ const Calendar: React.FC = () => {
   const getWeekDays = (date: Date) => {
     const startOfWeek = new Date(date);
     startOfWeek.setDate(date.getDate() - date.getDay());
-    
+
     const days: Date[] = [];
     for (let i = 0; i < 7; i++) {
       const day = new Date(startOfWeek);
@@ -68,7 +71,7 @@ const Calendar: React.FC = () => {
     const end = weekDays[6].getDate();
     const startMonth = monthNames[weekDays[0].getMonth()].substring(0, 3);
     const endMonth = monthNames[weekDays[6].getMonth()].substring(0, 3);
-    
+
     return `Semana del ${start} ${startMonth} al ${end} ${endMonth}`;
   };
 
@@ -104,8 +107,8 @@ const Calendar: React.FC = () => {
 
   const isSameDay = (date1: Date, date2: Date) => {
     return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear();
   };
 
   const isToday = (date: Date) => {
@@ -128,7 +131,7 @@ const Calendar: React.FC = () => {
 
   const renderMonthView = () => {
     const days = getDaysInMonth(currentDate);
-    
+
     return (
       <View>
         <View style={styles.calendarGrid}>
@@ -141,11 +144,11 @@ const Calendar: React.FC = () => {
             if (!day) {
               return <View key={`empty-${index}`} style={styles.dayCell} />;
             }
-            
+
             const isSelected = isSameDay(day, selectedDate);
             const isCurrentDay = isToday(day);
             const hasCitas = hasAppointments(day);
-            
+
             return (
               <TouchableOpacity
                 key={index}
@@ -176,14 +179,14 @@ const Calendar: React.FC = () => {
 
   const renderWeekView = () => {
     const weekDays = getWeekDays(selectedDate);
-    
+
     return (
       <View style={styles.weekContainer}>
         {weekDays.map((day, index) => {
           const isSelected = isSameDay(day, selectedDate);
           const isCurrentDay = isToday(day);
           const citas = getCitasForDate(day);
-          
+
           return (
             <TouchableOpacity
               key={index}
@@ -212,168 +215,292 @@ const Calendar: React.FC = () => {
   };
 
   const citas = getCitasForDate(selectedDate);
+  const router = useRouter();
 
   return (
-    <View style={styles.calendarContainer}>
-      <View style={styles.calendarHeader}>
-        <View style={styles.viewToggle}>
+
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+
+      <View style={styles.header}>
+          <View>
+            <Text style={styles.headerTitle}>Bienvenido, Dr. Acosta</Text>
+            <Text style={styles.headerSubtitle}>Jueves, 26 de Septiembre</Text>
+          </View>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity style={styles.headerIcon}>
+              <BellIcon width={24} height={24} color="#FFF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.headerAvatar}>
+              <Text style={styles.headerAvatarText}>DA</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.headerConsulta}>
+          <Text style={styles.title}>Agenda de Citas</Text>
+
           <TouchableOpacity
-            style={[styles.toggleButton, viewMode === 'month' && styles.toggleButtonActive]}
-            onPress={() => setViewMode('month')}
+            style={styles.newButton}
+            activeOpacity={0.8}
+            onPress={() => router.push("/doctor/dashboard/newAppointment")}
           >
-            <Text style={[styles.toggleButtonText, viewMode === 'month' && styles.toggleButtonTextActive]}>
-              Día
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleButton, viewMode === 'week' && styles.toggleButtonActive]}
-            onPress={() => setViewMode('week')}
-          >
-            <Text style={[styles.toggleButtonText, viewMode === 'week' && styles.toggleButtonTextActive]}>
-              Semana
-            </Text>
+            <PlusIcon size={18} color="#fff" />
+            <Text style={styles.newButtonText}>Nueva cita</Text>
           </TouchableOpacity>
         </View>
+      <ScrollView
+        contentContainerStyle={{ ...styles.container, flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
         
-        <View style={styles.monthSelector}>
-          <TouchableOpacity onPress={() => viewMode === 'month' ? changeMonth(-1) : changeWeek(-1)}>
-            <ChevronLeftIcon width={24} height={24} color={Colors.light.text} />
-          </TouchableOpacity>
-          <Text style={styles.monthTitle}>
-            {viewMode === 'month' 
-              ? `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`
-              : getWeekRange(selectedDate)
-            }
-          </Text>
-          <TouchableOpacity onPress={() => viewMode === 'month' ? changeMonth(1) : changeWeek(1)}>
-            <ChevronRightIcon width={24} height={24} color={Colors.light.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      {viewMode === 'month' ? renderMonthView() : renderWeekView()}
+        <View style={styles.calendarContainer}>
+          <View style={styles.calendarHeader}>
+            <View style={styles.viewToggle}>
+              <TouchableOpacity
+                style={[styles.toggleButton, viewMode === 'month' && styles.toggleButtonActive]}
+                onPress={() => setViewMode('month')}
+              >
+                <Text style={[styles.toggleButtonText, viewMode === 'month' && styles.toggleButtonTextActive]}>
+                  Día
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.toggleButton, viewMode === 'week' && styles.toggleButtonActive]}
+                onPress={() => setViewMode('week')}
+              >
+                <Text style={[styles.toggleButtonText, viewMode === 'week' && styles.toggleButtonTextActive]}>
+                  Semana
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-      <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Leyenda:</Text>
-        <View style={styles.legendRow}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: Colors.light.primary }]} />
-            <Text style={styles.legendText}>Programada</Text>
+            <View style={styles.monthSelector}>
+              <TouchableOpacity onPress={() => viewMode === 'month' ? changeMonth(-1) : changeWeek(-1)}>
+                <ChevronLeftIcon width={24} height={24} color={Colors.light.text} />
+              </TouchableOpacity>
+              <Text style={styles.monthTitle}>
+                {viewMode === 'month'
+                  ? `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`
+                  : getWeekRange(selectedDate)
+                }
+              </Text>
+              <TouchableOpacity onPress={() => viewMode === 'month' ? changeMonth(1) : changeWeek(1)}>
+                <ChevronRightIcon width={24} height={24} color={Colors.light.text} />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.legendText}>Confirmada</Text>
-          </View>
-        </View>
-        <View style={styles.legendRow}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: Colors.light.grey }]} />
-            <Text style={styles.legendText}>Completada</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
-            <Text style={styles.legendText}>Cancelada</Text>
-          </View>
-        </View>
-      </View>
 
-      <View style={styles.appointmentsList}>
-        <Text style={styles.appointmentsTitle}>
-          Citas del {selectedDate.getDate()} de {monthNames[selectedDate.getMonth()]}
-        </Text>
-        {citas.length > 0 ? (
-          citas.map((cita) => (
-            <View key={cita.id} style={styles.appointmentItem}>
-              <View style={styles.appointmentTime}>
-                <Text style={styles.appointmentTimeText}>{cita.hora}</Text>
+          {viewMode === 'month' ? renderMonthView() : renderWeekView()}
+
+          <View style={styles.legend}>
+            <Text style={styles.legendTitle}>Leyenda:</Text>
+            <View style={styles.legendRow}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: Colors.light.primary }]} />
+                <Text style={styles.legendText}>Programada</Text>
               </View>
-              <View style={styles.appointmentInfo}>
-                <Text style={styles.appointmentPatient}>{cita.paciente}</Text>
-                <View style={styles.appointmentStatus}>
-                  <View style={[styles.statusDot, { backgroundColor: getStatusColor(cita.estatus) }]} />
-                  <Text style={[styles.statusText, { color: getStatusColor(cita.estatus) }]}>
-                    {getStatusLabel(cita.estatus)}
-                  </Text>
-                </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
+                <Text style={styles.legendText}>Confirmada</Text>
               </View>
             </View>
-          ))
-        ) : (
-          <Text style={styles.noCitas}>No hay citas programadas para este día</Text>
-        )}
-      </View>
-    </View>
+            <View style={styles.legendRow}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: Colors.light.grey }]} />
+                <Text style={styles.legendText}>Completada</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
+                <Text style={styles.legendText}>Cancelada</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.appointmentsList}>
+            <Text style={styles.appointmentsTitle}>
+              Citas del {selectedDate.getDate()} de {monthNames[selectedDate.getMonth()]}
+            </Text>
+            {citas.length > 0 ? (
+              citas.map((cita) => (
+                <View key={cita.id} style={styles.appointmentItem}>
+                  <View style={styles.appointmentTime}>
+                    <Text style={styles.appointmentTimeText}>{cita.hora}</Text>
+                  </View>
+                  <View style={styles.appointmentInfo}>
+                    <Text style={styles.appointmentPatient}>{cita.paciente}</Text>
+                    <View style={styles.appointmentStatus}>
+                      <View style={[styles.statusDot, { backgroundColor: getStatusColor(cita.estatus) }]} />
+                      <Text style={[styles.statusText, { color: getStatusColor(cita.estatus) }]}>
+                        {getStatusLabel(cita.estatus)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noCitas}>No hay citas programadas para este día</Text>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+
   );
 };
 
 export default Calendar;
 
 const styles = StyleSheet.create({
-  card: { 
-    backgroundColor: Colors.light.white, 
-    borderRadius: 12, 
-    padding: 16, 
-    marginBottom: 12, 
-    elevation: 2, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.05, 
-    shadowRadius: 10 
+  container: {
+    padding: 16,
+    paddingBottom: 140,
+    backgroundColor: '#F8F9FA',
+  },
+  header: {
+    backgroundColor: Colors.light.primary,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 12 : 20,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 4,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#34D399',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerAvatarText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  headerConsulta: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  mainHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#111827", // text-gray-900
+  },
+  newButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3b82f6", // bg-blue-500
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+  },
+  newButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
+    marginLeft: 6,
+  },
+  card: {
+    backgroundColor: Colors.light.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center' },
-  cardBody: { 
-    marginTop: 16, 
-    borderTopWidth: 1, 
-    borderTopColor: '#EEEEEE', 
-    paddingTop: 16, 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center' 
+  cardBody: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#EEEEEE',
+    paddingTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
-  iconContainer: { 
-    backgroundColor: 'rgba(74, 144, 226, 0.1)', 
-    borderRadius: 50, 
-    width: 44, 
-    height: 44, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
+  iconContainer: {
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    borderRadius: 50,
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   cardTitle: { fontSize: 16, fontWeight: '600', color: Colors.light.text },
   cardSubtitle: { fontSize: 14, color: Colors.light.grey },
   motivoText: { fontSize: 14, color: Colors.light.text, flex: 1 },
-  primaryButton: { 
-    backgroundColor: Colors.light.primary, 
-    borderRadius: 20, 
-    paddingVertical: 8, 
-    paddingHorizontal: 16, 
-    marginLeft: 12 
+  primaryButton: {
+    backgroundColor: Colors.light.primary,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginLeft: 12
   },
   primaryButtonText: { color: Colors.light.white, fontWeight: 'bold', fontSize: 14 },
   citaItemCard: { flexDirection: 'row', alignItems: 'center' },
   secondaryButton: { borderRadius: 20, paddingVertical: 8, paddingHorizontal: 12 },
   secondaryButtonText: { color: Colors.light.white, fontSize: 12, fontWeight: 'bold' },
   linkText: { color: Colors.light.primary, fontWeight: '600', textAlign: 'center', marginTop: 8 },
-  
+
   // Tools styles
-  toolsContainer: { 
-    borderRadius: 12, 
-    backgroundColor: Colors.light.white, 
-    overflow: 'hidden', 
-    elevation: 2, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.05, 
-    shadowRadius: 10 
+  toolsContainer: {
+    borderRadius: 12,
+    backgroundColor: Colors.light.white,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10
   },
-  toolRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 16, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#F1F1F1' 
+  toolRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F1F1'
   },
   toolTextContainer: { flex: 1, marginLeft: 12 },
   toolTitle: { fontSize: 16, fontWeight: '600' },
   toolSubtitle: { fontSize: 12, color: Colors.light.grey, marginTop: 2 },
-  
+
   // Calendar styles
   calendarContainer: {
     backgroundColor: Colors.light.white,
@@ -596,22 +723,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 20,
   },
-  
+
   // FAB styles
-  fab: { 
-    position: 'absolute', 
-    right: 24, 
-    bottom: 24, 
-    width: 60, 
-    height: 60, 
-    borderRadius: 30, 
-    backgroundColor: Colors.light.primary, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    elevation: 8, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.2, 
-    shadowRadius: 5 
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 24,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.light.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5
   },
   fabActive: {
     backgroundColor: '#EF4444',
