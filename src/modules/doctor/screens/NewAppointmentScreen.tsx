@@ -5,8 +5,9 @@ import {
   UserCircleIcon,
 } from "@/src/modules/doctor/components/Icons";
 import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
+import React from 'react';
 import {
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -83,101 +84,96 @@ const TextareaField = ({
   </View>
 );
 
-const [selectedTipoCita, setSelectedTipoCita] = useState('');
-
 // 🔹 Pantalla principal
 
-const NewAppointmentScreen: React.FC<NewAppointmentScreenProps> = ({
-  onNavigate,
-}) => {
+const NewAppointmentScreen: React.FC = () => {
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.breadcrumb}>
-          <TouchableOpacity
-            onPress={() => onNavigate("calendar")}
-            style={styles.breadcrumbButton}
-            activeOpacity={0.7}
-          >
-            <ChevronLeftIcon size={16} color="#6b7280" />
-            <Text style={styles.breadcrumbText}>Citas</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.breadcrumb}>
+            <TouchableOpacity
+              style={styles.breadcrumbButton}
+              activeOpacity={0.7}
+            >
+              <ChevronLeftIcon size={16} color="#6b7280" />
+              <Text style={styles.breadcrumbText}>Citas</Text>
+            </TouchableOpacity>
+            <ChevronRightIcon size={16} color="#9ca3af" style={{ marginHorizontal: 4 }} />
+            <Text style={styles.breadcrumbActive}>Nueva Cita</Text>
+          </View>
+
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>Agendar Nueva Cita</Text>
+            <Text style={styles.headerEmoji}>🗓️</Text>
+          </View>
+          <Text style={styles.headerSubtitle}>
+            Rellena los siguientes campos para crear una nueva cita.
+          </Text>
+        </View>
+
+        {/* Main content */}
+        <ScrollView style={styles.formContainer}>
+          <FormSection title="Información del Paciente" icon={UserCircleIcon}>
+            <InputField
+              label="Paciente"
+              placeholder="Escribe el nombre del paciente"
+              isRequired
+            />
+          </FormSection>
+
+          <FormSection title="Fecha y Hora" icon={PlusIcon}>
+            <View style={styles.row}>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <InputField
+                  label="Día de la Cita"
+                  placeholder="Seleccionar fecha"
+                  isRequired
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <InputField
+                  label="Hora de la Cita"
+                  placeholder="Seleccionar hora"
+                  isRequired
+                />
+              </View>
+            </View>
+          </FormSection>
+
+          <FormSection title="Detalles de la Cita" icon={PlusIcon}>
+            <View style={{ marginBottom: 16 }}>
+              <Text style={styles.label}>
+                Tipo de Cita <Text style={{ color: 'red' }}>*</Text>
+              </Text>
+              <View style={styles.pickerContainer}>
+                <Picker>
+                  <Picker.Item label="Seleccionar tipo" value="" />
+                  <Picker.Item label="Primera vez" value="primera_vez" />
+                  <Picker.Item label="Seguimiento" value="seguimiento" />
+                  <Picker.Item label="Urgencia" value="urgencia" />
+                  <Picker.Item label="Control de tratamiento" value="control_tratamiento" />
+                </Picker>
+              </View>
+            </View>
+
+            {/* Campo de texto */}
+            <TextareaField
+              label="Motivo de la Cita"
+              placeholder="Describe brevemente el motivo de la consulta..."
+            />
+          </FormSection>
+        </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.submitButton}>
+            <Text style={styles.submitButtonText}>Agendar Cita</Text>
           </TouchableOpacity>
-          <ChevronRightIcon size={16} color="#9ca3af" style={{ marginHorizontal: 4 }} />
-          <Text style={styles.breadcrumbActive}>Nueva Cita</Text>
         </View>
-
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Agendar Nueva Cita</Text>
-          <Text style={styles.headerEmoji}>🗓️</Text>
-        </View>
-        <Text style={styles.headerSubtitle}>
-          Rellena los siguientes campos para crear una nueva cita.
-        </Text>
       </View>
-
-      {/* Main content */}
-      <ScrollView style={styles.formContainer}>
-        <FormSection title="Información del Paciente" icon={UserCircleIcon}>
-          <InputField
-            label="Paciente"
-            placeholder="Escribe el nombre del paciente"
-            isRequired
-          />
-        </FormSection>
-
-        <FormSection title="Fecha y Hora" icon={PlusIcon}>
-          <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: 8 }}>
-              <InputField
-                label="Día de la Cita"
-                placeholder="Seleccionar fecha"
-                isRequired
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <InputField
-                label="Hora de la Cita"
-                placeholder="Seleccionar hora"
-                isRequired
-              />
-            </View>
-          </View>
-        </FormSection>
-
-        <FormSection title="Detalles de la Cita" icon={PlusIcon}>
-          <View style={{ marginBottom: 16 }}>
-            <Text style={styles.label}>
-              Tipo de Cita <Text style={{ color: 'red' }}>*</Text>
-            </Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedTipoCita}
-              >
-                <Picker.Item label="Seleccionar tipo" value="" />
-                <Picker.Item label="Primera vez" value="primera_vez" />
-                <Picker.Item label="Seguimiento" value="seguimiento" />
-                <Picker.Item label="Urgencia" value="urgencia" />
-                <Picker.Item label="Control de tratamiento" value="control_tratamiento" />
-              </Picker>
-            </View>
-          </View>
-
-          {/* Campo de texto */}
-          <TextareaField
-            label="Motivo de la Cita"
-            placeholder="Describe brevemente el motivo de la consulta..."
-          />
-        </FormSection>
-      </ScrollView>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.submitButton}>
-          <Text style={styles.submitButtonText}>Agendar Cita</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -295,7 +291,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
-    labelPicker: {
+  labelPicker: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
