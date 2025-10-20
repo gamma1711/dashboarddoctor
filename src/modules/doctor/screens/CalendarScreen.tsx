@@ -9,18 +9,18 @@ import { useRouter } from "expo-router";
 import React, { useState } from 'react';
 import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const citasPorDia: Record<string, Array<{ id: string; paciente: string; hora: string; estatus: string }>> = {
+const citasPorDia: Record<string, Array<{ id: string; paciente: string; hora: string; estatus: string; motivo: string }>> = {
   '2025-10-01': [
-    { id: '1', paciente: 'Laura Pérez', hora: '10:00', estatus: 'confirmada' },
-    { id: '2', paciente: 'Carlos Mendoza', hora: '11:00', estatus: 'programada' },
+    { id: '1', paciente: 'Laura Pérez', hora: '10:00', estatus: 'confirmada', motivo: 'dolor' },
+    { id: '2', paciente: 'Carlos Mendoza', hora: '11:00', estatus: 'programada', motivo: 'dolor' },
   ],
   '2025-10-13': [
-    { id: '3', paciente: 'Elena Torres', hora: '09:00', estatus: 'confirmada' },
-    { id: '4', paciente: 'Juan García', hora: '10:30', estatus: 'programada' },
-    { id: '5', paciente: 'María López', hora: '14:00', estatus: 'cancelada' },
+    { id: '3', paciente: 'Elena Torres', hora: '09:00', estatus: 'confirmada', motivo: 'dolor' },
+    { id: '4', paciente: 'Juan García', hora: '10:30', estatus: 'programada', motivo: 'dolor' },
+    { id: '5', paciente: 'María López', hora: '14:00', estatus: 'cancelada', motivo: 'dolor' },
   ],
   '2025-10-15': [
-    { id: '6', paciente: 'Pedro Sánchez', hora: '11:00', estatus: 'completada' },
+    { id: '6', paciente: 'Pedro Sánchez', hora: '11:00', estatus: 'completada', motivo: 'dolor' },
   ],
 };
 
@@ -222,39 +222,39 @@ const Calendar: React.FC = ({ navigation }: any) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
 
       <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Bienvenido, Dr. Acosta</Text>
-            <Text style={styles.headerSubtitle}>Jueves, 26 de Septiembre</Text>
-          </View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.headerIcon}>
-              <BellIcon width={24} height={24} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.headerAvatar}>
-              <Text style={styles.headerAvatarText}>DA</Text>
-            </TouchableOpacity>
-          </View>
+        <View>
+          <Text style={styles.headerTitle}>Bienvenido, Dr. Acosta</Text>
+          <Text style={styles.headerSubtitle}>Jueves, 26 de Septiembre</Text>
         </View>
-
-        <View style={styles.headerConsulta}>
-          <Text style={styles.title}>Agenda de Citas</Text>
-
-          <TouchableOpacity
-            style={styles.newButton}
-            activeOpacity={0.8}
-            onPress={() => router.push("/doctor/dashboard/newAppointment")}
-          >
-            <PlusIcon size={18} color="#fff" />
-            <Text style={styles.newButtonText}>Nueva cita</Text>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity style={styles.headerIcon}>
+            <BellIcon width={24} height={24} color="#FFF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerAvatar}>
+            <Text style={styles.headerAvatarText}>DA</Text>
           </TouchableOpacity>
         </View>
+      </View>
+
+      <View style={styles.headerConsulta}>
+        <Text style={styles.title}>Agenda de Citas</Text>
+
+        <TouchableOpacity
+          style={styles.newButton}
+          activeOpacity={0.8}
+          onPress={() => router.push("/doctor/dashboard/newAppointment")}
+        >
+          <PlusIcon size={18} color="#fff" />
+          <Text style={styles.newButtonText}>Nueva cita</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         contentContainerStyle={{ ...styles.container, flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       >
-        
+
 
         <View style={styles.calendarContainer}>
           <View style={styles.calendarHeader}>
@@ -324,22 +324,45 @@ const Calendar: React.FC = ({ navigation }: any) => {
               Citas del {selectedDate.getDate()} de {monthNames[selectedDate.getMonth()]}
             </Text>
             {citas.length > 0 ? (
-              citas.map((cita) => (
-                <View key={cita.id} style={styles.appointmentItem}>
-                  <View style={styles.appointmentTime}>
-                    <Text style={styles.appointmentTimeText}>{cita.hora}</Text>
-                  </View>
-                  <View style={styles.appointmentInfo}>
-                    <Text style={styles.appointmentPatient}>{cita.paciente}</Text>
-                    <View style={styles.appointmentStatus}>
-                      <View style={[styles.statusDot, { backgroundColor: getStatusColor(cita.estatus) }]} />
-                      <Text style={[styles.statusText, { color: getStatusColor(cita.estatus) }]}>
-                        {getStatusLabel(cita.estatus)}
-                      </Text>
+              citas
+                .sort((a, b) => a.hora.localeCompare(b.hora))
+                .map((cita) => (
+                  <View key={cita.id} style={styles.appointmentItem}>
+                    {/* Hora */}
+                    <View style={styles.appointmentTime}>
+                      <Text style={styles.appointmentTimeText}>{cita.hora}</Text>
                     </View>
+
+                    {/* Separador */}
+                    <View style={styles.timeSeparator} />
+
+                    {/* Info paciente y razón */}
+                    <View style={styles.appointmentInfo}>
+                      <Text style={styles.appointmentPatient}>{cita.paciente}</Text>
+                      {cita.motivo && (
+                        <Text style={styles.appointmentReason}>{cita.motivo}</Text>
+                      )}
+
+                      {/* Estado */}
+                      <View style={styles.appointmentStatus}>
+                        <View
+                          style={[styles.statusDot, { backgroundColor: getStatusColor(cita.estatus) }]}
+                        />
+                        <Text style={[styles.statusText, { color: getStatusColor(cita.estatus) }]}>
+                          {getStatusLabel(cita.estatus)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Botón actualizar */}
+                    <TouchableOpacity
+                      onPress={() => router.push("/(protected)/doctor/dashboard/updateAppointment")}
+                      style={styles.updateButton}
+                    >
+                      <PlusIcon width={20} height={20} color="#3b82f6" />
+                    </TouchableOpacity>
                   </View>
-                </View>
-              ))
+                ))
             ) : (
               <Text style={styles.noCitas}>No hay citas programadas para este día</Text>
             )}
@@ -778,5 +801,21 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.primary,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  timeSeparator: {
+    width: 2,
+    height: 40,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 1,
+    marginHorizontal: 8,
+  },
+  appointmentReason: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  updateButton: {
+    padding: 6,
+    borderRadius: 999,
+    marginLeft: 8,
   },
 });
