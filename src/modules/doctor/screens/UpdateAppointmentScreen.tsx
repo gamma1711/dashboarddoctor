@@ -2,13 +2,8 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
-const route = useRoute();
 
 type AppointmentStatus = 'Programada' | 'Confirmada' | 'Completada' | 'Cancelada';
-
-const { appointment: appointmentStr, onUpdate } = route.params as { appointment: string; onUpdate: (apt: Appointment) => void };
-
-const appointment: Appointment = JSON.parse(appointmentStr);
 
 interface Appointment {
   id: string;
@@ -19,17 +14,22 @@ interface Appointment {
 }
 
 export default function UpdateAppointmentScreen() {
-  
   const navigation = useNavigation();
   const route = useRoute();
-  const { appointment, onUpdate } = route.params as { appointment: Appointment; onUpdate: (apt: Appointment) => void };
 
+  // 📦 Obtenemos los parámetros enviados
+  const { appointment: appointmentStr, onUpdate } = route.params as {
+    appointment: string;
+    onUpdate: (apt: Appointment) => void;
+  };
+
+  const appointment: Appointment = JSON.parse(appointmentStr);
   const [status, setStatus] = useState<AppointmentStatus>(appointment.estatus);
 
   const handleSave = () => {
-  onUpdate({ ...appointment, estatus: status });
-  navigation.goBack();
-};
+    onUpdate({ ...appointment, estatus: status });
+    navigation.goBack();
+  };
 
   return (
     <View style={styles.container}>

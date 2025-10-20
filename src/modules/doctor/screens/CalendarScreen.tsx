@@ -356,7 +356,12 @@ const Calendar: React.FC = ({ navigation }: any) => {
 
                     {/* Botón actualizar */}
                     <TouchableOpacity
-                      onPress={() => router.push("/(protected)/doctor/dashboard/updateAppointment")}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/(protected)/doctor/dashboard/updateAppointment",
+                          params: { appointment: JSON.stringify(cita) },
+                        })
+                      }
                       style={styles.updateButton}
                     >
                       <PlusIcon width={20} height={20} color="#3b82f6" />
